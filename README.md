@@ -1,43 +1,35 @@
 # Whisper LLM Cleaner
 
-A surgical, automated post-processor for Superwhisper on macOS. It watches the local Superwhisper database, sends new transcriptions to an LLM (via OpenRouter) for technical formatting, and auto-pastes the clean result.
+Automated post-processing for Superwhisper. This tool bridges the gap between raw voice-to-text and polished technical prose.
 
-## Prerequisites
-- macOS
-- [Superwhisper](https://superwhisper.com/) installed.
-- `sqlite3` (pre-installed on macOS).
-- An [OpenRouter](https://openrouter.ai/) API Key.
+## 🚀 The Productivity Gap
+- **Voice Speed:** ~147 Words Per Minute
+- **Typing Speed:** ~40 Words Per Minute
+- **Efficiency Gain:** 360% increase in communication bandwidth.
 
-## Installation
+## 🛠 How it Works
+1. **Trigger:** Superwhisper (local) transcribes your voice to its internal SQLite database.
+2. **Detection:** This script watches the database for new entries.
+3. **Processing:** The raw text is sent to Gemini 2.0 Flash via OpenRouter.
+4. **Action:** The cleaned text is copied to your clipboard and auto-pasted into your active application.
 
-1. Clone or download this project.
-2. Ensure the script is executable:
-   ```bash
-   chmod +x cleaner.sh
-   ```
+## 📁 System Information
+- **Superwhisper Database:** `~/Library/Application Support/superwhisper/database/superwhisper.sqlite`
+- **Project Location:** `~/projects/whisper-llm-cleaner`
+- **Configuration & Prompt:** All AI instructions are defined in `config.json`.
 
-## Configuration
-
-Edit `config.json`:
-- `api_key`: Your OpenRouter API key.
-- `model`: The model you want to use (e.g., `google/gemini-2.0-flash-001`).
-- `db_path`: The path to your Superwhisper SQLite database.
-- `marker`: The prefix added to processed text (e.g., `✨ `).
-
-## Usage
-
-Run the script in a terminal window:
+## ⚙️ Running in the Background
+To keep the cleaner running without keeping a terminal open:
 ```bash
-./cleaner.sh
+nohup ./cleaner.sh > output.log 2>&1 &
+```
+To verify it is running:
+```bash
+ps aux | grep cleaner.sh
 ```
 
-### Important Superwhisper Settings
-To avoid double-pasting:
-1. Open Superwhisper Settings.
-2. **Disable** "Auto-Paste" (the script handles pasting).
-3. **Enable** "Copy to Clipboard" (optional, but recommended for fallback).
+## 📝 Customizing the AI
+You can change how the AI rewrites your text by editing the `"prompt"` field in `config.json`. This is where you can tell it to focus on specific programming languages, fix grammar, or change the tone.
 
-## Troubleshooting
-If auto-pasting fails:
-- Ensure your Terminal app has **Accessibility** permissions in `System Settings > Privacy & Security > Accessibility`.
-- If the script stops, check the terminal output for errors.
+## 🔒 Requirements
+- **Accessibility Permissions:** Ensure your Terminal app (or `sh`/`bash`) has permission to "Control your computer" in **System Settings > Privacy & Security > Accessibility**.
