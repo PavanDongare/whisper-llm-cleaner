@@ -1,5 +1,4 @@
 {
-  "api_key": "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",
   "model": "google/gemini-2.0-flash-001",
   "db_path": "/Users/pavandongare/Library/Application Support/superwhisper/database/superwhisper.sqlite",
   "marker": "- ",

@@ -1,21 +1,20 @@
 #!/bin/bash
 
 # --- SINGLETON LOGIC ---
-# Ensure only one instance of this script can run at a time
 LOCKFILE="/tmp/whisper_cleaner.lock"
-if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
-    echo "Already running. Exiting."
+if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}` 2>/dev/null; then
+    echo "$(date): Already running. Exiting." >> /tmp/watcher.log
     exit 1
 fi
 echo $$ > ${LOCKFILE}
-# -----------------------
 
-# Get the directory where the script is located
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# --- SECURE CONFIGURATION ---
+# Load API KEY from hidden file outside the project folder
+API_KEY=$(cat ~/.openrouter_key)
+DIR="/Users/pavandongare/projects/whisper-llm-cleaner"
 CONFIG="$DIR/config.json"
 
-# Load Config
-API_KEY=$(python3 -c "import json; print(json.load(open('$CONFIG'))['api_key'])")
+# Load other settings from config.json
 MODEL=$(python3 -c "import json; print(json.load(open('$CONFIG'))['model'])")
 DB_PATH=$(python3 -c "import json; print(json.load(open('$CONFIG'))['db_path'])")
 MARKER=$(python3 -c "import json; print(json.load(open('$CONFIG'))['marker'])")
@@ -24,7 +23,7 @@ SYSTEM_PROMPT=$(python3 -c "import json; print(json.load(open('$CONFIG'))['promp
 # Get the ID of the last recording
 LAST_ID=$(sqlite3 "$DB_PATH" "SELECT MAX(rowid) FROM recording_fts_content;")
 
-echo "--- Whisper LLM Cleaner Started (Single Instance Mode) ---"
+echo "--- $(date): SECURE WATCHDOG STARTED ---" >> /tmp/watcher.log
 
 while true; do
     CURRENT_ID=$(sqlite3 "$DB_PATH" "SELECT MAX(rowid) FROM recording_fts_content;")
@@ -47,6 +46,7 @@ while true; do
                 echo "$MARKER$RESULT" | pbcopy
                 sleep 0.5
                 osascript -e 'tell application "System Events" to keystroke "v" using command down'
+                echo "$(date): SUCCESS" >> /tmp/watcher.log
             fi
         fi
         LAST_ID=$CURRENT_ID
